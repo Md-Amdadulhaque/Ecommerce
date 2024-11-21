@@ -1,6 +1,7 @@
 
 using E_commerce.Models;
 using E_commerce.Services;
+using E_commerce.Interface;
 
 namespace E_commerce
 {
@@ -10,18 +11,24 @@ namespace E_commerce
         {
             var builder = WebApplication.CreateBuilder(args);
 
-          
-
-            builder.Services.Configure<ProductStoreDatabaseSetting>(
-    builder.Configuration.GetSection("E_commerceDatabase"));
-
-            builder.Services.Configure<CategoryStoreDatabaseSetting>(
-   builder.Configuration.GetSection("E_commerceDatabase"));
 
 
+   //builder.Services.Configure<ProductStoreDatabaseSetting>(
+   //         builder.Configuration.GetSection("E_commerceDatabase"));
 
-            builder.Services.AddSingleton<ProductServices>();
-            builder.Services.AddSingleton<CategoryServices>();
+   //         builder.Services.Configure<CategoryStoreDatabaseSetting>(
+   //builder.Configuration.GetSection("E_commerceDatabase"));
+
+
+            builder.Services.Configure<MongoDbContextSetting>
+                (builder.Configuration.GetSection("E_commerceDatabase"));
+
+            builder.Services.AddSingleton(typeof(IMongoDbContext<>), typeof(MongoDbContext<>));
+
+            builder.Services.AddSingleton(typeof(IDatabaseService<>), typeof(DatabaseService<>));
+
+            builder.Services.AddSingleton<IProductService,ProductServices>();
+            builder.Services.AddSingleton<ICategoryService,CategoryServices>();
 
 
             // Add services to the container.

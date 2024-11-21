@@ -2,6 +2,7 @@
 using E_commerce.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using E_commerce.Interface;
 
 namespace E_commerce.Controllers
 {
@@ -9,16 +10,13 @@ namespace E_commerce.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ProductServices _productService;
+        private readonly IProductService _productService;
 
-        public ProductController(ProductServices productService)
+        public ProductController(IProductService productService)
         {
             _productService = productService;
 
         }
-
-
-
         [HttpGet]
         public async Task<List<Product>> Get() =>
         await _productService.GetAsync();
@@ -26,10 +24,10 @@ namespace E_commerce.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> Get(string id)
         {
-            var product =  await _productService.GetWithIdAsync(id);
+            var product = await _productService.GetWithIdAsync(id);
             if (product == null)
             {
-                return NotFound();  
+                return NotFound();
             }
             return Ok(product);
         }
@@ -44,7 +42,7 @@ namespace E_commerce.Controllers
             return CreatedAtAction(nameof(Get), new { id = newProduct.Id }, newProduct);
         }
 
-       
+
 
         [HttpPut("{id:length(24)}")]
         public async Task<IActionResult> Update(string id, Product updatedProduct)
@@ -73,10 +71,10 @@ namespace E_commerce.Controllers
                 return NotFound();
             }
 
-          
+
             await _productService.RemoveAsync(id);
 
-            return NoContent();
+            return Ok();
         }
 
 

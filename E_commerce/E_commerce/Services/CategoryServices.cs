@@ -1,43 +1,54 @@
-﻿using E_commerce.Models;
+﻿using E_commerce.Interface;
+using E_commerce.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace E_commerce.Services
 {
-    public class CategoryServices
+    public class CategoryServices:ICategoryService
     {
-        private readonly IMongoCollection<Category> _categoryCollection;
+        private  IDatabaseService<Category> _databaseService;
 
+        //ublic CategoryServices()
 
-        public CategoryServices(
-
-            IOptions<CategoryStoreDatabaseSetting> categoryStoreDatabaseSettings)
+        public CategoryServices(IDatabaseService<Category> databaseService)
         {
-            var mongoClient = new MongoClient(
-                categoryStoreDatabaseSettings.Value.ConnectionString);
+            _databaseService = databaseService;
+        }
 
-            var mongoDatabase = mongoClient.GetDatabase(
-                categoryStoreDatabaseSettings.Value.DatabaseName);
+        //public IDatabaseService<Category> databaseService => _databaseService;
 
-            _categoryCollection = mongoDatabase.GetCollection<Category>(
-                categoryStoreDatabaseSettings.Value.E_commerceCollectionName2);
 
+        public async Task<List<Category>> GetAsync()
+        {
+            var categories = await _databaseService.GetAllAsync();
+            return categories;
         }
 
 
-        public async Task<List<Category>> GetAsync() =>
-        await _categoryCollection.Find(_ => true).ToListAsync();
+        public async Task<Category?> GetAsync(string id)
+        {
+            var category = await _databaseService.FindAsync(id);
+            return category;
+        }
 
-        public async Task<Category?> GetAsync(string id) =>
-            await _categoryCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        public async Task CreateAsync(Category category)
+        {
+            await _databaseService.AddAsync(category);
+        }
 
-        public async Task CreateAsync(Category newCategory) =>
-            await _categoryCollection.InsertOneAsync(newCategory);
 
-        public async Task UpdateAsync(string id, Category updatedCategory) =>
-            await _categoryCollection.ReplaceOneAsync(x => x.Id == id, updatedCategory);
 
-        public async Task RemoveAsync(string id) =>
-            await _categoryCollection.DeleteOneAsync(x => x.Id == id);
+        public async Task UpdateAsync(string id, Category updatedCategory) 
+        {
+              await _databaseService.UpdateAsync(id, updatedCategory);
+        }
+
+        public async Task RemoveAsync(string id)
+        {
+            await _databaseService.DeleteAsync(id);
+        }
     }
 }

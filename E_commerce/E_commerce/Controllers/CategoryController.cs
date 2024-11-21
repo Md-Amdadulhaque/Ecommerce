@@ -2,6 +2,7 @@
 using E_commerce.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using E_commerce.Interface;
 
 namespace E_commerce.Controllers
 {
@@ -9,8 +10,8 @@ namespace E_commerce.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly CategoryServices _categoryServices;
-        public CategoryController(CategoryServices categoryServices) {
+        private readonly ICategoryService _categoryServices;
+        public CategoryController(ICategoryService categoryServices) {
 
             _categoryServices = categoryServices;
 
@@ -30,7 +31,7 @@ namespace E_commerce.Controllers
                 return NotFound();
             }
 
-            return category;
+            return Ok(category);
         }
 
         [HttpPost]
@@ -70,7 +71,7 @@ namespace E_commerce.Controllers
 
             await _categoryServices.RemoveAsync(id);
 
-            return NoContent();
+            return Ok();
         }
 
 
